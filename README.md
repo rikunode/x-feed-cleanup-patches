@@ -5,7 +5,7 @@ One Morphe patch source, six selectable enhancements for X. **Keep your existing
 ## Install or update
 Source: https://github.com/rikunode/x-feed-cleanup-patches
 
-Stable version: 1.12.2-x.3 · 6 patches · X **12.31.0-prod.01** / **12.32.0-prod.01**.
+Stable version: 1.12.2-x.4 · 6 patches · X **12.31.0-prod.01** / **12.32.0-prod.01**.
 
 | Patch | Function |
 |---|---|
@@ -17,9 +17,9 @@ Stable version: 1.12.2-x.3 · 6 patches · X **12.31.0-prod.01** / **12.32.0-pro
 | Copy media URL | Copy direct image/video/GIF URLs from post options and image URL from photo long-press; native video long-press is not yet supported |
 
 All six can be selected for **the same X version** in one patching run. The last two filters have been merged from the earlier five-patch beta without removing the existing URL copy patch.
-Image long-press adds a Copy media URL action to the existing photo sheet. This passed compilation and real 12.31.0 APK patch-application checks, but device UI is still unverified. Video direct MP4 URLs are handled from post options; video long-press and photo-viewer three-dot menu are not implemented. The obsolete native video-download hook was removed because its fingerprint does not exist in X 12.31.0.
+Image long-press adds a Copy media URL action to the existing photo sheet. Version x.4 corrects the post-options handler lookup that failed with Ahmed Yarub's Patches 1.24.2; a combined-device retest is still required. This passed compilation and real 12.31.0 APK patch-application checks, but device UI is still unverified. Video direct MP4 URLs are handled from post options; video long-press and photo-viewer three-dot menu are not implemented. The obsolete native video-download hook was removed because its fingerprint does not exist in X 12.31.0.
 
-**Prerelease toggle:** Morphe compares stable and dev manifests and chooses the newer version. This stable 1.12.2-x.3 is newer than the old dev `1.12.1-legacy.4-beta.4`; switching the toggle off is not needed to get the latest unified version.
+**Prerelease toggle:** Morphe compares stable and dev manifests and chooses the newer version. This stable 1.12.2-x.4 is newer than the old dev `1.12.1-legacy.4-beta.4`; switching the toggle off is not needed to get the latest unified version.
 
 **Display name:** X Patch. If the source has a custom local name, change it using the pencil icon in Morphe.
 
