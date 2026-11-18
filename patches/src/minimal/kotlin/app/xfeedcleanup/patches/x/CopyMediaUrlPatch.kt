@@ -128,7 +128,11 @@ val copyMediaUrlPatch = bytecodePatch(
             """,
         )
 
-        val handler = MediaOptionsPresenterFingerprint.classDef
+        // Ahmed's selected patches can rewrite the constructor string used by the
+        // presenter fingerprint. Prefer the verified 12.31 class directly, while
+        // preserving the fingerprint fallback for builds with different obfuscation.
+        val handler = classDefByOrNull("Lcom/x/urt/items/post/options/n;")
+            ?: MediaOptionsPresenterFingerprint.classDef
         val presenterField = handler.fields.single { field ->
             classDefByOrNull(field.type)?.fields?.let { fields ->
                 fields.any { it.type == "Landroid/content/Context;" } &&
