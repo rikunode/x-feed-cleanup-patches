@@ -52,6 +52,18 @@ private object GalleryPhotoActionHandlerFingerprint : Fingerprint(
     parameters = listOf("Lcom/x/media/u0;"),
 )
 
+private object NativeLongPressSheetFingerprint : Fingerprint(
+    definingClass = "Lcom/x/urt/items/post/media/x;",
+    name = "c",
+    returnType = "V",
+)
+private object NativeLongPressSelectionFingerprint : Fingerprint(
+    definingClass = "Lcom/x/urt/items/post/media/t;",
+    name = "invoke",
+    returnType = "Ljava/lang/Object;",
+    parameters = listOf("Ljava/lang/Object;"),
+)
+
 private class MenuHelperFingerprint(name: String) : Fingerprint(definingClass = MEDIA_MENU, name = name)
 
 private fun String.javaClassName() = removePrefix("L").removeSuffix(";").replace('/', '.')
@@ -111,6 +123,42 @@ val copyMediaUrlPatch = bytecodePatch(
                 return-void
                 """,
                 ExternalLabel("originalGalleryAction", getInstruction(0)),
+            )
+        }
+
+        // X 12.31's real image/video long-press action sheet lives here.
+        // The former com.x.dm.chat.composables.e0 sheet belongs to another UI.
+        NativeLongPressSheetFingerprint.method.apply {
+            val builders = instructions.withIndex().filter { (_, instruction) ->
+                instruction.opcode == Opcode.INVOKE_STATIC &&
+                    instruction.getReference<MethodReference>()?.let { ref ->
+                        ref.definingClass == "Lcom/x/urt/items/post/quote/nested/f;" &&
+                            ref.name == "j" && ref.parameterTypes.singleOrNull() == "Ljava/lang/Iterable;"
+                    } == true
+            }
+            if (builders.size != 1) throw PatchException("Native media long-press sheet builder is ambiguous")
+            val argument = builders.single().value as? FiveRegisterInstruction
+                ?: throw PatchException("Unsupported native media long-press sheet invocation")
+            addInstructions(
+                builders.single().index,
+                "invoke-static { v${argument.registerC} }, $MEDIA_MENU->appendLongPressMediaUrlAction(Ljava/util/List;)V",
+            )
+        }
+
+        // The native callback casts the selected sheet id to a sealed action.
+        // Consume our unique item first; forward every native item unchanged.
+        NativeLongPressSelectionFingerprint.method.apply {
+            val free = getFreeRegisterProvider(0, 1).getFreeRegister()
+            addInstructionsWithLabels(
+                0,
+                """
+                invoke-static/range { p1 .. p1 }, $MEDIA_MENU->handleLongPressMediaUrlAction(Ljava/lang/Object;)Z
+                move-result v$free
+                if-eqz v$free, :originalMediaAction
+                sget-object v$free, Lkotlin/Unit;->a:Lkotlin/Unit;
+                return-object v$free
+                """,
+                ExternalLabel("originalMediaAction", getInstruction(0)),
             )
         }
 
