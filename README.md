@@ -3,7 +3,7 @@
 One Morphe patch source, six selectable enhancements for X. **Keep your existing source:** update it; no need to add a second source.
 
 ## Install or update
-Source: https://github.com/rikunode/x-feed-cleanup-patches
+Source: https://github.com/rikunode/x-patch
 
 Stable version: 1.12.2-x.8 · 6 patches · X **12.31.0-prod.01** / **12.32.0-prod.01**.
 
