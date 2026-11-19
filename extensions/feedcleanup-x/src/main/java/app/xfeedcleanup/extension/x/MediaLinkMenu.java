@@ -322,6 +322,12 @@ public final class MediaLinkMenu {
                 break;
             }
             if (selectedMedia == null) return;
+            if ("com.x.models.t4".equals(selectedMedia.getClass().getName())) {
+                // Reuse the native video Copy link icon, not the photo Save icon.
+                Field linkIcon = Class.forName("com.x.icons.a").getDeclaredField("h5");
+                linkIcon.setAccessible(true);
+                icon = linkIcon.get(null);
+            }
             Class<?> itemType = rows.get(0).getClass();
             String label = "ja".equals(java.util.Locale.getDefault().getLanguage())
                 ? "\u30e1\u30c7\u30a3\u30a2URL\u3092\u30b3\u30d4\u30fc" : "Copy media URL";
