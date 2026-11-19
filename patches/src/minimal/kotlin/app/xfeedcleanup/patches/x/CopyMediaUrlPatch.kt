@@ -75,7 +75,7 @@ private fun String.javaClassName() = removePrefix("L").removeSuffix(";").replace
 @Suppress("unused")
 val copyMediaUrlPatch = bytecodePatch(
     name = "Copy media URL",
-    description = "Copies photo URLs from image long-press and image/video/GIF URLs from post options.",
+    description = "Copies direct image/video/GIF URLs from long-press or post options.",
 ) {
     compatibleWith(COMPATIBILITY_X)
     dependsOn(recommendationFilterPatch)
