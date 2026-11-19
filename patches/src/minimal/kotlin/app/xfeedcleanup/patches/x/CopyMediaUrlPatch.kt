@@ -15,6 +15,7 @@ import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 
 private const val MEDIA_MENU = "Lapp/xfeedcleanup/extension/x/MediaLinkMenu;"
 
@@ -137,11 +138,24 @@ val copyMediaUrlPatch = bytecodePatch(
                     } == true
             }
             if (builders.size != 1) throw PatchException("Native media long-press sheet builder is ambiguous")
-            val argument = builders.single().value as? FiveRegisterInstruction
-                ?: throw PatchException("Unsupported native media long-press sheet invocation")
+            // The iterable-to-immutable-list call is the target of a loop-exit
+            // branch. Inserting *before* it is skipped on the normal path.
+            // Transform the finished sheet immediately after move-result-object.
+            val resultIndex = builders.single().index + 1
+            val resultInstruction = instructions.getOrNull(resultIndex)
+                ?: throw PatchException("Native media sheet result is missing")
+            if (resultInstruction.opcode != Opcode.MOVE_RESULT_OBJECT) {
+                throw PatchException("Unexpected native media sheet result opcode")
+            }
+            val resultRegister = (resultInstruction as? OneRegisterInstruction)?.registerA
+                ?: throw PatchException("Unsupported native media sheet result register")
             addInstructions(
-                builders.single().index,
-                "invoke-static { v${argument.registerC} }, $MEDIA_MENU->appendLongPressMediaUrlAction(Ljava/util/List;)V",
+                resultIndex + 1,
+                """
+                invoke-static/range { v$resultRegister .. v$resultRegister }, $MEDIA_MENU->withLongPressMediaUrlAction(Ljava/lang/Object;)Ljava/lang/Object;
+                move-result-object v$resultRegister
+                check-cast v$resultRegister, Lkotlinx/collections/immutable/b;
+                """,
             )
         }
 
