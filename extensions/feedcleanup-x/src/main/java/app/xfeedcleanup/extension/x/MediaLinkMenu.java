@@ -272,8 +272,30 @@ public final class MediaLinkMenu {
     }
 
     /**
-     * Adds a direct-CDN copy action to the actual photo/video long-press
-     * sheet (com.x.urt.items.post.media.x). X's existing rows are preserved.
+     * Returns a new immutable media sheet with one additional URL-copy row.
+     * Called after X builds the sheet: loop-exit branches skip hooks inserted
+     * before the original immutable-list conversion.
+     */
+    public static Object withLongPressMediaUrlAction(Object immutableRows) {
+        if (!(immutableRows instanceof Iterable)) return immutableRows;
+        try {
+            ArrayList<Object> rows = new ArrayList<>();
+            for (Object row : (Iterable<?>) immutableRows) rows.add(row);
+            int originalSize = rows.size();
+            appendLongPressMediaUrlAction(rows);
+            if (rows.size() == originalSize) return immutableRows;
+            Class<?> builder = Class.forName("com.x.urt.items.post.quote.nested.f");
+            Method freeze = builder.getDeclaredMethod("j", Iterable.class);
+            freeze.setAccessible(true);
+            return freeze.invoke(null, rows);
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError ignored) {
+            return immutableRows;
+        }
+    }
+
+    /**
+     * Adds a direct-CDN copy action to the native photo/video long-press
+     * sheet rows without removing or changing their existing actions.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static void appendLongPressMediaUrlAction(List<?> rows) {
